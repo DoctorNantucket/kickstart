@@ -1,0 +1,14 @@
+Get os type
+ if mac = install homebrew
+install iterm mac
+install zsh
+install all themes
+install macvim
+install vs code
+install chrome
+if mac = install alfred
+install python
+set python3 as system default
+install git
+install antigen
+install slack
