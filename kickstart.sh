@@ -1,10 +1,7 @@
 #!/usr/bin/env bash
-
-#set -e
-
-########################################################################################################
+#
 # Purpose: This is a kickstart start script that will setup a the basics of a new computer for myself. #
-########################################################################################################
+#
 
 if [[ "$(uname -s)" != "Darwin" ]]; then
     echo "ERROR - ${os} is not a supported operating system!"
@@ -24,8 +21,13 @@ else
     brew update
 fi
 
+# Get list of the currently installed brews and casks, if any. We'll use these
+# to reduce runtime and brew installs more efficient.
+INSTALLED_BREWS=( $(brew list) )
+INSTALLED_CASKS=( $(brew cask list) )
+
 # All the brew packages I'd like to install
-PACKAGES=(
+BREWS=(
     awscli
     dropbox
     firefox
@@ -47,8 +49,31 @@ PACKAGES=(
     wget
 )
 
+CASKS=(
+    google-cloud-sdk
+    iterm2
+    slack
+    vlc
+)
+
+PYTHON_PACKAGES=(
+    virtualenv
+    virtualenvwrapper
+)
+
+function remove_duplicated_packages() {
+  for final in "${BREWS[@]}"; do
+    for i in "${INSTALLED_BREWS[@]}"; do
+      if [[ ${final[i]} = ${i} ]]; then
+        echo "${final[i]} is already installed. Removing from install list..."
+        unset ${final[i]}
+      fi
+    done
+  done
+}
+
 echo "Starting installation of brew packages..."
-for i in "${PACKAGES[@]}"
+for i in "${BREWS[@]}"
     do
         # Check to see if the package is already installed, if so, move on
         brew list ${i}
@@ -60,13 +85,6 @@ for i in "${PACKAGES[@]}"
             continue
         fi
     done
-
-CASKS=(
-    google-cloud-sdk
-    iterm2
-    slack
-    vlc
-)
 
 echo "Starting installation of brew cask packages..."
 for i in "${CASKS[@]}"
@@ -83,10 +101,6 @@ for i in "${CASKS[@]}"
     done
 
 echo "Installing Python packages..."
-PYTHON_PACKAGES=(
-    virtualenv
-    virtualenvwrapper
-)
 #TODO: update to do this via python3
 sudo pip install ${PYTHON_PACKAGES[@]}
 
